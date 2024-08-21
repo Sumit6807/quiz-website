@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaming Quiz</title>
+    <style>
+        body {
+            font-family: 'Verdana', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298); /* Blue gradient background */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            color: #fff;
+        }
+
+        h1 {
+            color: #f9f9f9;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .score-section {
+            display: flex;
+            justify-content: space-between;
+            width: 300px;
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: #f9f9f9;
+            font-weight: bold;
+        }
+
+        .question h3 {
+            margin-bottom: 15px;
+            font-weight: bold;
+            font-size: 22px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .options-container {
+            margin-bottom: 20px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 2px solid #5a8dee;
+            border-radius: 10px;
+            background: linear-gradient(145deg, #3a7bd5, #3a6073);
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .option:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .option input {
+            margin-right: 10px;
+        }
+
+        button {
+            display: block;
+            width: 320px;
+            padding: 15px;
+            background-color: #ff7e5f;
+            background-image: linear-gradient(145deg, #ff7e5f, #feb47b);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            margin-top: 15px;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-image: linear-gradient(145deg, #feb47b, #ff7e5f);
+            transform: scale(1.05);
+        }
+
+        #results {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <h1>Gaming Quiz</h1>
+    <div class="score-section">
+        <p id="current-score">Current Score: 0</p>
+        <p id="high-score">Highest Score: 0</p>
+    </div>
+    <button id="start-quiz">Start Quiz</button>
+    <div id="quiz" style="display: none;"></div>
+    <button id="submit" style="display: none;">Submit</button>
+    <div id="results"></div>
+
+    <script>
+        const quizData = [
+            {
+                question: "Which game features a plumber named Mario?",
+                options: [
+                    "The Legend of Zelda", 
+                    "Super Mario Bros.", 
+                    "Metroid", 
+                    "Donkey Kong"
+                ],
+                answer: "Super Mario Bros."
+            },
+            {
+                question: "What year was the first PlayStation console released?",
+                options: ["1994", "1996", "1998", "2000"],
+                answer: "1994"
+            },
+            {
+                question: "In 'The Legend of Zelda' series, what is the name of Link's sword?",
+                options: ["Master Sword", "Excalibur", "Blade of the Ancients", "Hylian Sword"],
+                answer: "Master Sword"
+            },
+            {
+                question: "Which game is set in the fictional land of Hyrule?",
+                options: ["Final Fantasy", "The Witcher", "The Legend of Zelda", "Elder Scrolls"],
+                answer: "The Legend of Zelda"
+            },
+            {
+                question: "Which character is known as the 'Blue Blur'?",
+                options: ["Mega Man", "Samus Aran", "Sonic the Hedgehog", "Crash Bandicoot"],
+                answer: "Sonic the Hedgehog"
+            },
+            {
+                question: "Which game series features the character 'Solid Snake'?",
+                options: ["Metal Gear Solid", "Splinter Cell", "Hitman", "Resident Evil"],
+                answer: "Metal Gear Solid"
+            },
+            {
+                question: "In which game do you play as a vault dweller in a post-apocalyptic world?",
+                options: ["Fallout", "Borderlands", "The Last of Us", "Half-Life"],
+                answer: "Fallout"
+            },
+            {
+                question: "What is the name of the final course in all 'Mario Kart' games?",
+                options: ["Rainbow Road", "Mushroom Kingdom", "Bowser's Castle", "Koopa Beach"],
+                answer: "Rainbow Road"
+            },
+            {
+                question: "Which game series is known for the phrase 'Finish Him!'?",
+                options: ["Street Fighter", "Tekken", "Mortal Kombat", "Soulcalibur"],
+                answer: "Mortal Kombat"
+            },
+            {
+                question: "Which game is set in the underwater city of Rapture?",
+                options: ["BioShock", "Subnautica", "Aquanox", "Deep Blue"],
+                answer: "BioShock"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let highScore = 0;
+
+        const quizContainer = document.getElementById('quiz');
+        const resultsContainer = document.getElementById('results');
+        const submitButton = document.getElementById('submit');
+        const startButton = document.getElementById('start-quiz');
+        const currentScoreDisplay = document.getElementById('current-score');
+        const highScoreDisplay = document.getElementById('high-score');
+
+        function startQuiz() {
+            score = 0;
+            currentQuestion = 0;
+            resultsContainer.textContent = '';
+            updateScoreDisplay();
+            generateQuiz();
+            quizContainer.style.display = 'block';
+            submitButton.style.display = 'block';
+            startButton.style.display = 'none';
+        }
+
+        function generateQuiz() {
+            const quizQuestion = document.createElement('div');
+            quizQuestion.className = 'question';
+
+            const questionText = document.createElement('h3');
+            questionText.textContent = quizData[currentQuestion].question;
+            quizQuestion.appendChild(questionText);
+
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'options-container';
+
+            quizData[currentQuestion].options.forEach(option => {
+                const label = document.createElement('label');
+                label.className = 'option';
+
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.name = 'quiz';
+                input.value = option;
+
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(option));
+                optionsContainer.appendChild(label);
+            });
+
+            quizContainer.innerHTML = '';
+            quizContainer.appendChild(quizQuestion);
+            quizContainer.appendChild(optionsContainer);
+        }
+
+        function evaluateAnswer() {
+            const selectedOption = document.querySelector('input[name="quiz"]:checked');
+            if (selectedOption) {
+                const answer = selectedOption.value;
+                if (answer === quizData[currentQuestion].answer) {
+                    score++;
+                }
+            }
+            updateScoreDisplay();
+        }
+
+        function updateScoreDisplay() {
+            currentScoreDisplay.textContent = `Current Score: ${score}`;
+            if (score > highScore) {
+                highScore = score;
+                highScoreDisplay.textContent = `Highest Score: ${highScore}`;
+            }
+        }
+
+        function showResults() {
+            resultsContainer.textContent = `You scored ${score} out of ${quizData.length}`;
+            quizContainer.style.display = 'none';
+            submitButton.style.display = 'none';
+            startButton.style.display = 'block';
+        }
+
+        startButton.addEventListener('click', startQuiz);
+
+        submitButton.addEventListener('click', () => {
+            evaluateAnswer();
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                generateQuiz();
+            } else {
+                showResults();
+            }
+        });
+    </script>
+</body>
+</html>
